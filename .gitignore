@@ -1,0 +1,7 @@
+node_modules/
+auth_info_baileys/
+antiadmin_db.json
+*.webm
+*.mp3
+*.ogg
+temp_*

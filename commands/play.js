@@ -18,7 +18,6 @@ module.exports = {
         if (!searchQuery) return await sock.sendMessage(sender, { text: '❌ Please provide a song name.' });
 
         try {
-            // FIX: Force execute permissions on Linux before running the binary
             if (!isWindows && fs.existsSync(binaryPath)) {
                 try {
                     fs.chmodSync(binaryPath, '755');
@@ -40,6 +39,7 @@ module.exports = {
                 '-x', 
                 '--audio-format', 'm4a', 
                 '--ffmpeg-location', ffmpeg.path,
+                '--extractor-args', 'youtube:player-client=ios,web', // FIX: Forces yt-dlp to use clients that bypass the sign-in block
                 '-o', outputFilePath
             ]);
 
@@ -56,7 +56,7 @@ module.exports = {
 
         } catch (error) {
             console.error('yt-dlp standalone execution error:', error);
-            await sock.sendMessage(sender, { text: '❌ An error occurred during download processing.' });
+            await sock.sendMessage(sender, { text: '❌ YouTube is blocking this server IP. Try again shortly.' });
         }
     }
 };

@@ -7,8 +7,6 @@ const isWindows = process.platform === 'win32';
 const binaryName = isWindows ? 'yt-dlp.exe' : 'yt-dlp';
 const binaryPath = path.join(__dirname, '../bin', binaryName);
 
-const ytDlpWrap = new YTDlpWrap(binaryPath);
-
 module.exports = {
     name: 'play',
     async execute(sock, sender, text, args) {
@@ -20,15 +18,23 @@ module.exports = {
         if (!searchQuery) return await sock.sendMessage(sender, { text: '❌ Please provide a song name.' });
 
         try {
-            await sock.sendMessage(sender, { text: '🎵 Fetching playable audio via standalone yt-dlp binary...' });
+            // FIX: Force execute permissions on Linux before running the binary
+            if (!isWindows && fs.existsSync(binaryPath)) {
+                try {
+                    fs.chmodSync(binaryPath, '755');
+                } catch (chmodErr) {
+                    console.error('Failed to set permissions:', chmodErr);
+                }
+            }
+
+            const ytDlpWrap = new YTDlpWrap(binaryPath);
+            await sock.sendMessage(sender, { text: '🎵 Downloading...' });
 
             const outputDirectory = path.join(__dirname, '../temp');
             if (!fs.existsSync(outputDirectory)) fs.mkdirSync(outputDirectory);
             
-            // Fix: Changed extension to .m4a to ensure correct container formatting
             const outputFilePath = path.join(outputDirectory, `${Date.now()}.m4a`);
 
-            // Fix: Target the 'm4a' audio format directly during extraction
             await ytDlpWrap.execPromise([
                 `ytsearch1:${searchQuery}`, 
                 '-x', 

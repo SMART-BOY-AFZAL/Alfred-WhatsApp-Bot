@@ -39,7 +39,8 @@ module.exports = {
                 '-x', 
                 '--audio-format', 'm4a', 
                 '--ffmpeg-location', ffmpeg.path,
-                '--extractor-args', 'youtube:player-client=ios,web', // FIX: Forces yt-dlp to use clients that bypass the sign-in block
+                '--extractor-args', 'youtube:player-client=android,web_embedded', // FIX: Bypasses both the token requirement and the sign-in block
+                '--no-check-certificates',
                 '-o', outputFilePath
             ]);
 
